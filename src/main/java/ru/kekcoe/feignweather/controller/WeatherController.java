@@ -14,8 +14,8 @@ public class WeatherController {
     private final WeatherDao weatherDao;
 
     @GetMapping("/weather")
-    public InformerResponse getWeather(@RequestParam("lat") double lat, @RequestParam("lon") double lon) {
-        return weatherDao.getInformerResponse(lat,lon);
+    public InformerResponse getWeather(@RequestParam("locationname") String locationName) {
+        return weatherDao.getInformerResponse(locationName);
     }
 
 }
