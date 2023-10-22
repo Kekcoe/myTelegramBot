@@ -14,13 +14,12 @@ import ru.kekcoe.feignweather.controller.WeatherController;
 @Component
 public class WeatherBot extends TelegramLongPollingBot {
     private final WeatherController weatherController;
-    private static final String START = "/start";
     @Autowired
-    public WeatherBot(@Value("${bot.token}") String botToken, WeatherController weatherController) {
+    public WeatherBot(@Value("${bot.token}") String botToken,
+                      WeatherController weatherController) {
         super(botToken);
         this.weatherController = weatherController;
     }
-
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -30,11 +29,12 @@ public class WeatherBot extends TelegramLongPollingBot {
         var message = update.getMessage().getText();
         var chatId = update.getMessage().getChatId();
 
-        switch (message){
-            case START -> {
-                String userName= update.getMessage().getChat().getUserName();
-                startCommand(chatId,userName);
-            }
+        if (message.equals(Commands.START)) {
+            String userName = update.getMessage().getChat().getUserName();
+            startCommand(chatId, userName);
+        }
+        if (message.equals(Commands.WEATHER)) {
+            weatherCommand(chatId);
         }
     }
 
@@ -44,9 +44,15 @@ public class WeatherBot extends TelegramLongPollingBot {
     }
 
     private void startCommand(Long chatId, String userName){
-        var text = "Добро пожаловать в бот, %s"
-                + weatherController.getWeather("Дом").toString();
+        var text = "Добро пожаловать в бот, %s " + userName;
         var formatted= String.format(text, userName);
+        sendMessage(chatId,formatted);
+    }
+
+    private void weatherCommand(Long chatId){
+        var text = "Погода: " +
+                 weatherController.getWeather("Дом").getFact();
+        var formatted= String.format(text);
         sendMessage(chatId,formatted);
     }
 
